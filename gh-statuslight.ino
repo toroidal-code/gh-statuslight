@@ -19,7 +19,7 @@ String jsonString = "";
 
 unsigned long lastConnectionTime = 0;          // last time you connected to the server, in milliseconds
 boolean lastConnected = false;                 // state of the connection last time through the main loop
-const unsigned long postingInterval = 2*1000;  // delay between updates, in milliseconds
+const unsigned long postingInterval = 30*1000;  // delay between updates, in milliseconds
 
 void setup() {
 	DDRD = DDRD | B11111100; //sets pins 2 to 7 as outputs
