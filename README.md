@@ -1,3 +1,7 @@
+#Attention!
+This is now broken and deprecated due to status.github.com no longer using JSON. I will attempt to rewrite the program that it will work with the updated system.For now there is a dummy file being loaded, so the program still works. But it does not reflect the real status of Github
+###Happy Hubbing!
+
 Github Traffic Light
 ==============
 
