@@ -3,6 +3,8 @@
 #include <EthernetClient.h>
 #include <aJSON.h>
 
+#define RGB 1
+
 // Enter a MAC address for your controller below.
 // Newer Ethernet shields have a MAC address printed on a sticker on the shield
 byte mac[] = {  0xDA, 0xEA, 0xFD, 0xDF, 0xCE, 0xDC };
@@ -13,13 +15,12 @@ char server[] = "thewcubed.com";
 // that you want to connect to (port 80 is default for HTTP):
 EthernetClient client;
 
-boolean firstCurly = true;
 boolean startRead = false;
 String jsonString = "";
 
 unsigned long lastConnectionTime = 0;          // last time you connected to the server, in milliseconds
 boolean lastConnected = false;                 // state of the connection last time through the main loop
-const unsigned long postingInterval = 30*1000;  // delay between updates, in milliseconds
+const unsigned long postingInterval = 5*1000;  // delay between updates, in milliseconds
 
 void setup() {
 	DDRD = DDRD | B11111100; //sets pins 2 to 7 as outputs
@@ -42,10 +43,9 @@ void loop()
 {
 	if (client.available()) {
 		char c = client.read();
-		if( firstCurly == true && c == '{' ) { startRead = true; firstCurly = false; }; // signals beginning of JSON
-		if( c == ',' && startRead == true ) { c = '}';};
+		if( c == '{' ) { startRead = true; }; // signals beginning of JSON
 		if( startRead ) { Serial.print(c); jsonString += c; };
-		if( c == '}' && startRead == true ) { startRead = false; };
+		if( c == '}' && startRead == true ) { startRead = false; };		
 	}
 	
 	// if there's no net connection, but there was one last time
@@ -54,7 +54,6 @@ void loop()
 		Serial.println();
 		Serial.println("disconnecting.");
 		client.stop();
-		firstCurly = true;
 
 		Serial.println("");
 		Serial.println("Debug:");
@@ -69,7 +68,7 @@ void loop()
 		parseStatus(charArray);
 	}
 
-	// if you're not connected, and ten seconds have passed since
+	// if you're not connected, and X seconds have passed since
 	// your last connection, then connect again and send data:
 	if(!client.connected() && (millis() - lastConnectionTime > postingInterval)) {
 		jsonString = "";
@@ -85,24 +84,52 @@ void parseStatus(char *json){
 	aJsonObject* jsonObject = aJson.parse(json);
 	aJsonObject* status = aJson.getObjectItem(jsonObject, "status");
  
-	String statusString = String(status->valuestring);
+	String statusString = status->valuestring;
 	Serial.println("");
-	Serial.println("Status String:");
+	Serial.print("Status String: ");
 	Serial.println(statusString);
 	
-	if (statusString == "good"){
+        if ( RGB == 0 ){
+          Serial.print("Traffic Light: ");
+          trafficlight(status->valuestring);
+        } else if (RGB == 1) {
+          Serial.print("RGB LED: ");
+          rgblight(status->valuestring);
+        } else {
+          Serial.println("You didn't set RGB");
+        }
+        aJson.deleteItem(jsonObject); //manual garbage collection
+}
+
+void trafficlight (String state){
+	if (state == "good"){
 		Serial.println("Green");
 		PORTD = B00001000; // sets digital pin 3 HIGH
-	} else if (statusString == "minorproblem") {
+	} else if (state == "minor") {
 		Serial.println("Orange");
 		PORTD = B00010000; // sets digital pin 4 HIGH
-	} else if (statusString == "majorproblem"){
+	} else if (state == "major"){
 		Serial.println("Red");
 		PORTD = B00100000; // sets digital pin 5 HIGH
 	} else {
 		Serial.println("Whoa there");
 	}
 }
+void rgblight (String state){
+	if (state == "good"){
+		Serial.println("Green");
+		PORTD = B00101000; // sets digital pin 3 & 5 HIGH
+	} else if (state == "minor") {
+		Serial.println("Orange");
+		PORTD = B00100000; // sets digital pin 5 HIGH
+	} else if (state == "major"){
+		Serial.println("Red");
+		PORTD = B01100000; // sets digital pin 5 & 6 HIGH
+	} else {
+		Serial.println("Whoa there");
+	}
+}
+
 
 // this method makes a HTTP connection to the server:
 void httpRequest() {
@@ -127,6 +154,5 @@ void httpRequest() {
 		client.stop();
 	}
 }
-
 
 
