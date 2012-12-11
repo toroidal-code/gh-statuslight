@@ -1,13 +1,11 @@
-###Happy Hubbing!
-
-Github Traffic Light
+Github Status Traffic Light
 ==============
 
 An Arduino program to control a traffic light that mirrors the status of status.github.com
 
 ###What is this?
 
-This is a little program I wrote that utilises an Arduino (ATMega328p) and Ethernet hardware (a WizNet WIZ820io) to control three lights that mirror the color of the banner on status.github.com. So now you know, without even opening a new webpage, whether the reason you can't push/pull to/from GitHub is your fault or not.
+This is a little program I wrote that utilises an Arduino (ATMega328p) and Ethernet hardware (a WizNet WIZ820io) to control three lights or an RGB LED to mirror the color of status.github.com. So now you know, without even opening a new webpage, whether the reason you can't push/pull to/from GitHub is your fault or not.
 
 ###Here be *Smallish* Dragons
 
